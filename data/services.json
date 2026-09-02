@@ -45,5 +45,14 @@
       "Registro de pontos relevantes"
     ],
     "active": true
+  },
+  {
+    "id": "teste-crud-temporario",
+    "title": "Teste CRUD Temporário",
+    "description": "Registro temporário para validação da área administrativa.",
+    "points": [
+      "Criação"
+    ],
+    "active": false
   }
 ]
