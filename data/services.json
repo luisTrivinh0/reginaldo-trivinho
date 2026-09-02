@@ -45,15 +45,5 @@
       "Registro de pontos relevantes"
     ],
     "active": true
-  },
-  {
-    "id": "teste-crud-temporario",
-    "title": "Teste CRUD Temporário Editado",
-    "description": "Registro temporário editado para validar atualização.",
-    "points": [
-      "Criação",
-      "Edição"
-    ],
-    "active": false
   }
 ]
