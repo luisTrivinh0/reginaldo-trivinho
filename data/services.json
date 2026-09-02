@@ -48,10 +48,11 @@
   },
   {
     "id": "teste-crud-temporario",
-    "title": "Teste CRUD Temporário",
-    "description": "Registro temporário para validação da área administrativa.",
+    "title": "Teste CRUD Temporário Editado",
+    "description": "Registro temporário editado para validar atualização.",
     "points": [
-      "Criação"
+      "Criação",
+      "Edição"
     ],
     "active": false
   }
