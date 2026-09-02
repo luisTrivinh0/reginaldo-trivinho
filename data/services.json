@@ -1,0 +1,49 @@
+[
+  {
+    "id": "elaboracao-quesitos-tecnicos",
+    "title": "Elaboração de Quesitos Técnicos",
+    "description": "Elaboração de quesitos estratégicos destinados à perícia judicial, buscando direcionar a análise do perito para os aspectos técnicos relevantes ao processo. Os quesitos são desenvolvidos de forma objetiva e fundamentada, visando esclarecer pontos controvertidos, verificar informações apresentadas pelas partes e possibilitar uma avaliação técnica mais completa.",
+    "points": [
+      "Quesitos estratégicos",
+      "Fundamentação técnica",
+      "Pontos controvertidos"
+    ],
+    "active": true
+  },
+  {
+    "id": "analise-impugnacao-laudos",
+    "title": "Análise e Impugnação Técnica de Laudos",
+    "description": "Análise detalhada de laudos periciais, documentos, cálculos, metodologias e demais elementos técnicos apresentados no processo, com foco na identificação de falhas que possam comprometer a qualidade ou a consistência da conclusão técnica.",
+    "points": [
+      "Erros técnicos ou metodológicos",
+      "Omissões relevantes",
+      "Contradições",
+      "Informações inconsistentes"
+    ],
+    "active": true
+  },
+  {
+    "id": "parecer-tecnico",
+    "title": "Elaboração de Parecer Técnico",
+    "description": "Desenvolvimento de pareceres técnicos independentes, apresentando de forma estruturada a análise dos elementos técnicos relacionados ao processo e contribuindo para a fundamentação da estratégia processual.",
+    "points": [
+      "Análise documental",
+      "Evidências técnicas",
+      "Interpretação de dados",
+      "Análise de metodologias",
+      "Conclusões técnicas"
+    ],
+    "active": true
+  },
+  {
+    "id": "acompanhamento-pericias",
+    "title": "Acompanhamento de Perícias",
+    "description": "Acompanhamento técnico dos trabalhos periciais dentro das atribuições do assistente técnico, com atenção aos procedimentos, registros, documentos e elementos relevantes para a adequada compreensão técnica do caso.",
+    "points": [
+      "Acompanhamento técnico",
+      "Análise de procedimentos",
+      "Registro de pontos relevantes"
+    ],
+    "active": true
+  }
+]
