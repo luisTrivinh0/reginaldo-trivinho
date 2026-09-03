@@ -15,14 +15,17 @@ Não há banco de dados tradicional.
 
 ## Primeiro acesso
 
-Configure somente nas variáveis de ambiente da Netlify:
+O acesso inicial fica em `netlify/functions/_config/bootstrap.json`.
 
-- `INITIAL_ADMIN_EMAIL`
-- `INITIAL_ADMIN_PASSWORD`
+O arquivo contém somente:
 
-Nenhuma credencial inicial deve ser adicionada ao GitHub, HTML ou JavaScript público.
+- hash SHA-256 do e-mail;
+- salt da senha;
+- hash `scrypt` da senha temporária.
 
-No primeiro login, a conta é criada no Netlify Blobs com senha derivada por `scrypt` e o painel obriga a criação de uma nova senha.
+Nenhuma senha em texto puro ou Base64 é publicada.
+
+No primeiro login válido, a conta é criada no Netlify Blobs e o painel obriga a criação de uma nova senha.
 
 ## Painel
 
@@ -32,7 +35,7 @@ O titular pode trocar a senha temporária, enviar ou substituir a foto e cadastr
 
 ## Segurança
 
-- credenciais iniciais apenas em variáveis de ambiente;
+- credenciais iniciais armazenadas somente como hashes no backend;
 - senha nunca armazenada em texto puro;
 - troca obrigatória no primeiro login;
 - sessão server-side com cookie HttpOnly, Secure e SameSite=Strict;
