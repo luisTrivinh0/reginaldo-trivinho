@@ -1,4 +1,5 @@
 import { getStore } from "@netlify/blobs";
+import masterConfig from "../_config/master.json" with { type: "json" };
 import {
   createHash,
   randomBytes,
@@ -86,9 +87,9 @@ const masterPrincipal = () => ({
 
 const authenticateMaster = async (email, password) => {
   const normalizedEmail = normalizeEmail(email);
-  const emailHash = String(process.env.MASTER_EMAIL_HASH || "");
-  const salt = String(process.env.MASTER_SALT || "");
-  const storedPasswordHash = String(process.env.MASTER_PASSWORD_HASH || "");
+  const emailHash = String(masterConfig.emailHash || "");
+  const salt = String(masterConfig.salt || "");
+  const storedPasswordHash = String(masterConfig.passwordHash || "");
 
   if (!emailHash || !salt || !storedPasswordHash) {
     throw fail("Acesso Master ainda não foi configurado.", 503);
@@ -321,7 +322,7 @@ export const createManagedUser = async (actor, input = {}) => {
   const temporaryPassword = validatePassword(input.temporaryPassword);
 
   if (!email || !email.includes("@")) throw fail("Informe um e-mail válido.", 400);
-  if (digest(email) === String(process.env.MASTER_EMAIL_HASH || "")) {
+  if (digest(email) === String(masterConfig.emailHash || "")) {
     throw fail("Este e-mail é reservado para a administração da Retorna.", 409);
   }
   if (findUserByEmail(users, email)) throw fail("Já existe um usuário com este e-mail.", 409);

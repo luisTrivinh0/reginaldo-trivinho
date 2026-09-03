@@ -17,13 +17,13 @@ Não há banco de dados tradicional.
 
 Cada site possui uma identidade Master da Retorna separada dos usuários do cliente.
 
-A credencial Master fica somente nas variáveis secretas da Netlify Functions:
+A credencial Master é representada em `netlify/functions/_config/master.json` somente por:
 
-- `MASTER_EMAIL_HASH`: hash SHA-256 do e-mail;
-- `MASTER_SALT`: salt exclusivo do projeto;
-- `MASTER_PASSWORD_HASH`: hash `scrypt` da senha.
+- hash SHA-256 do e-mail;
+- salt exclusivo deste projeto;
+- hash `scrypt` da senha.
 
-Nenhum material da credencial Master é versionado no GitHub.
+Nenhuma senha em texto puro ou Base64 é versionada no GitHub.
 
 A conta Master:
 
