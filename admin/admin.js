@@ -1,5 +1,6 @@
-const REPOSITORY = "luisTrivinh0/reginaldo-trivinho";
-const BRANCH = "main";
+const siteConfig = window.SITE_CONFIG || {};
+const REPOSITORY = siteConfig.repository || "luisTrivinh0/reginaldo-trivinho";
+const BRANCH = siteConfig.branch || "main";
 const SERVICES_PATH = "data/services.json";
 const API_BASE = "https://api.github.com";
 
@@ -25,6 +26,14 @@ const servicesCount = document.querySelector("#services-count");
 let accessKey = "";
 let services = [];
 let fileSha = "";
+
+document.querySelectorAll("[data-site-name]").forEach((element) => {
+  element.textContent = siteConfig.brand?.name || element.textContent;
+});
+
+document.querySelectorAll("[data-site-initials]").forEach((element) => {
+  element.textContent = siteConfig.brand?.initials || element.textContent;
+});
 
 const escapeHtml = (value = "") =>
   value.replace(/[&<>"']/g, (char) => ({
@@ -249,7 +258,7 @@ serviceForm.addEventListener("submit", async (event) => {
 
     renderServices();
     resetForm();
-    setStatus(formStatus, "Serviço salvo. O GitHub Pages atualizará o portfólio.", "success");
+    setStatus(formStatus, "Serviço salvo. O site será atualizado após o deploy automático.", "success");
   } catch (error) {
     setStatus(formStatus, error.message, "error");
   } finally {
