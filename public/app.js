@@ -80,7 +80,7 @@ const renderServices = (services) => {
       "<p>" + escapeHtml(service.description) + "</p>" +
       points +
       '<a class="service-link" href="' + buildWhatsappLink(service.title) + '" target="_blank" rel="noreferrer">' +
-      "Conversar sobre este serviço</a></article>"
+      'Conversar sobre este serviço<span class="service-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M7 17 17 7M9 7h8v8"/></svg></span></a></article>'
     );
   }).join("");
 };
