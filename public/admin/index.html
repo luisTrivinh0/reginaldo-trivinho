@@ -83,6 +83,42 @@
         </div>
       </div>
 
+      <section class="panel theme-panel hidden" id="theme-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="panel-kicker">Aparência</span>
+            <h2>Cores do site</h2>
+            <p class="muted">Defina a identidade principal da página. A prévia é aplicada imediatamente no painel.</p>
+          </div>
+        </div>
+
+        <form id="theme-form" class="theme-form">
+          <div class="theme-color-field">
+            <label for="primary-color">Cor primária</label>
+            <div class="theme-color-control">
+              <input id="primary-color" type="color" value="#132238" aria-label="Selecionar cor primária">
+              <input id="primary-color-text" type="text" value="#132238" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" aria-label="Código hexadecimal da cor primária">
+            </div>
+            <small>Usada em títulos, botões, marca e elementos estruturais.</small>
+          </div>
+
+          <div class="theme-color-field">
+            <label for="secondary-color">Cor secundária</label>
+            <div class="theme-color-control">
+              <input id="secondary-color" type="color" value="#A77943" aria-label="Selecionar cor secundária">
+              <input id="secondary-color-text" type="text" value="#A77943" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$" aria-label="Código hexadecimal da cor secundária">
+            </div>
+            <small>Usada em destaques, detalhes, links e acentos visuais.</small>
+          </div>
+
+          <div class="theme-actions">
+            <button class="button primary" type="submit">Salvar cores</button>
+            <button class="button ghost" id="reset-theme-button" type="button">Restaurar padrão</button>
+          </div>
+          <p class="status" id="theme-status" aria-live="polite"></p>
+        </form>
+      </section>
+
       <section class="panel profile-panel">
         <div class="panel-heading"><div><span class="panel-kicker">Perfil</span><h2>Foto profissional</h2></div></div>
         <div class="photo-editor">
@@ -174,6 +210,7 @@
     </section>
   </main>
 
+  <script src="../theme.js"></script>
   <script src="../site.config.js"></script>
   <script src="./admin.js" defer></script>
 </body>

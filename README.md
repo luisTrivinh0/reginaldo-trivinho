@@ -47,7 +47,7 @@ O proprietário será obrigado a trocar a senha temporária no primeiro login.
 
 Acesse `/admin/`.
 
-O titular pode trocar a senha temporária, enviar ou substituir a foto e cadastrar, editar, ocultar ou excluir serviços.
+O titular pode trocar a senha temporária, enviar ou substituir a foto e cadastrar, editar, ocultar ou excluir serviços. Master e proprietário também podem definir as cores primária e secundária da página; o tema é persistido separadamente no Netlify Blobs.
 
 ### Usuários e permissões
 

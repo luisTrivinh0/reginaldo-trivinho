@@ -7,6 +7,14 @@ const passwordForm = document.querySelector("#password-form");
 const photoForm = document.querySelector("#photo-form");
 const serviceForm = document.querySelector("#service-form");
 const userForm = document.querySelector("#user-form");
+const themeForm = document.querySelector("#theme-form");
+const themePanel = document.querySelector("#theme-panel");
+const primaryColor = document.querySelector("#primary-color");
+const primaryColorText = document.querySelector("#primary-color-text");
+const secondaryColor = document.querySelector("#secondary-color");
+const secondaryColorText = document.querySelector("#secondary-color-text");
+const themeStatus = document.querySelector("#theme-status");
+const resetThemeButton = document.querySelector("#reset-theme-button");
 const logoutButton = document.querySelector("#logout-button");
 const loginStatus = document.querySelector("#login-status");
 const passwordStatus = document.querySelector("#password-status");
@@ -39,6 +47,12 @@ const createUserButton = document.querySelector("#create-user-button");
 let services = [];
 let users = [];
 let currentUser = null;
+let currentTheme = {
+  ...(window.RETORNA_THEME?.DEFAULT_THEME || {
+    primaryColor: "#132238",
+    secondaryColor: "#A77943"
+  })
+};
 
 const escapeHtml = (value = "") =>
   String(value).replace(/[&<>"']/g, (char) => ({
@@ -95,6 +109,37 @@ const showView = (view) => {
 const roleLabel = (role) => {
   if (role === "master") return "Master Retorna";
   return role === "owner" ? "Proprietário" : "Editor";
+};
+
+const applyTheme = (theme) => {
+  currentTheme = window.RETORNA_THEME?.applyTheme(theme) || currentTheme;
+  return currentTheme;
+};
+
+const setThemeForm = (theme) => {
+  const applied = applyTheme(
+    theme || window.RETORNA_THEME?.DEFAULT_THEME || currentTheme
+  );
+  primaryColor.value = applied.primaryColor;
+  primaryColorText.value = applied.primaryColor;
+  secondaryColor.value = applied.secondaryColor;
+  secondaryColorText.value = applied.secondaryColor;
+};
+
+const previewTheme = () => {
+  const normalize = window.RETORNA_THEME?.normalizeHex;
+  if (!normalize) return;
+
+  const primary = normalize(primaryColorText.value, "");
+  const secondary = normalize(secondaryColorText.value, "");
+
+  if (!/^#[0-9A-F]{6}$/.test(primary) || !/^#[0-9A-F]{6}$/.test(secondary)) {
+    return;
+  }
+
+  primaryColor.value = primary;
+  secondaryColor.value = secondary;
+  applyTheme({ primaryColor: primary, secondaryColor: secondary });
 };
 
 const createId = (title) => {
@@ -273,10 +318,14 @@ const loadDashboard = async () => {
 
   renderServices();
   loadPhoto(contentResult.photoUrl);
+  applyTheme(contentResult.theme || window.RETORNA_THEME?.DEFAULT_THEME);
 
   if (["master", "owner"].includes(currentUser.role)) {
+    setThemeForm(contentResult.theme || window.RETORNA_THEME?.DEFAULT_THEME);
+    themePanel.classList.remove("hidden");
     await loadUsers();
   } else {
+    themePanel.classList.add("hidden");
     usersPanel.classList.add("hidden");
   }
 };
@@ -356,6 +405,61 @@ logoutButton.addEventListener("click", async () => {
     showView(loginView);
     loginForm.reset();
   }
+});
+
+primaryColor.addEventListener("input", () => {
+  primaryColorText.value = primaryColor.value.toUpperCase();
+  previewTheme();
+});
+
+secondaryColor.addEventListener("input", () => {
+  secondaryColorText.value = secondaryColor.value.toUpperCase();
+  previewTheme();
+});
+
+primaryColorText.addEventListener("input", previewTheme);
+secondaryColorText.addEventListener("input", previewTheme);
+
+themeForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const normalize = window.RETORNA_THEME?.normalizeHex;
+  const primary = normalize?.(primaryColorText.value, "");
+  const secondary = normalize?.(secondaryColorText.value, "");
+
+  if (!/^#[0-9A-F]{6}$/.test(primary || "") || !/^#[0-9A-F]{6}$/.test(secondary || "")) {
+    setStatus(themeStatus, "Informe cores válidas no formato #RRGGBB.", "error");
+    return;
+  }
+
+  const button = themeForm.querySelector('button[type="submit"]');
+  button.disabled = true;
+  setStatus(themeStatus, "Salvando cores...");
+
+  try {
+    const result = await api("/api/admin/theme", {
+      method: "PUT",
+      body: JSON.stringify({
+        primaryColor: primary,
+        secondaryColor: secondary
+      })
+    });
+
+    setThemeForm(result.theme);
+    setStatus(themeStatus, "Cores atualizadas e publicadas.", "success");
+  } catch (error) {
+    setStatus(themeStatus, error.message, "error");
+  } finally {
+    button.disabled = false;
+  }
+});
+
+resetThemeButton.addEventListener("click", () => {
+  setThemeForm(window.RETORNA_THEME?.DEFAULT_THEME);
+  setStatus(
+    themeStatus,
+    "Cores padrão carregadas na prévia. Clique em Salvar cores para publicar."
+  );
 });
 
 photoInput.addEventListener("change", () => {

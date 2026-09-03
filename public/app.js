@@ -101,6 +101,10 @@ const loadContent = async () => {
       const content = await response.json();
       services = Array.isArray(content.services) ? content.services : null;
 
+      if (content.theme) {
+        window.RETORNA_THEME?.applyTheme(content.theme);
+      }
+
       if (content.photoUrl && photoShell && profilePhoto) {
         profilePhoto.src = content.photoUrl;
         profilePhoto.alt = "Foto de " + (brand.name || "profissional");

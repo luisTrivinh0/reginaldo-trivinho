@@ -3,10 +3,10 @@
   width: 112px;
   height: 112px;
   margin-bottom: 22px;
-  border: 1px solid rgba(167, 121, 67, 0.28);
+  border: 1px solid rgba(var(--secondary-rgb), 0.28);
   border-radius: 24px;
   background: var(--sand-100);
-  box-shadow: 0 14px 34px rgba(13, 24, 39, 0.1);
+  box-shadow: 0 14px 34px rgba(var(--primary-dark-rgb), 0.1);
 }
 
 .profile-photo-shell img {
