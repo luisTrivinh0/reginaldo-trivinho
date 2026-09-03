@@ -1,4 +1,5 @@
 import { getStore } from "@netlify/blobs";
+import bootstrap from "../_config/bootstrap.json" with { type: "json" };
 import { createHash, randomBytes, scrypt as scryptCallback, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
 
@@ -63,19 +64,28 @@ export const bootstrapOrAuthenticate = async (email, password) => {
   let account = await getAccount();
 
   if (!account) {
-    const initialEmail = normalizeEmail(process.env.INITIAL_ADMIN_EMAIL);
-    const initialPassword = process.env.INITIAL_ADMIN_PASSWORD || "";
+    const bootstrapEmailHash = String(bootstrap.emailHash || "");
+    const bootstrapSalt = String(bootstrap.salt || "");
+    const bootstrapPasswordHash = String(bootstrap.passwordHash || "");
 
-    if (!initialEmail || !initialPassword) throw fail("Acesso inicial ainda não foi configurado.", 503);
-    if (normalizedEmail !== initialEmail || password !== initialPassword) {
+    if (!bootstrapEmailHash || !bootstrapSalt || !bootstrapPasswordHash) {
+      throw fail("Acesso inicial ainda não foi configurado.", 503);
+    }
+
+    const emailMatches = digest(normalizedEmail) === bootstrapEmailHash;
+    const passwordMatches = await verifyPassword(password, {
+      salt: bootstrapSalt,
+      passwordHash: bootstrapPasswordHash
+    });
+
+    if (!emailMatches || !passwordMatches) {
       throw fail("E-mail ou senha inválidos.", 401);
     }
 
-    const salt = randomBytes(16).toString("hex");
     account = {
-      email: initialEmail,
-      salt,
-      passwordHash: await passwordHash(initialPassword, salt),
+      email: normalizedEmail,
+      salt: bootstrapSalt,
+      passwordHash: bootstrapPasswordHash,
       mustChangePassword: true,
       sessionVersion: 1,
       createdAt: Date.now()
