@@ -9,23 +9,39 @@ Primeira implementação do template de landing pages profissionais da Retorna.
 - `public/data/services.json`: serviços iniciais e fallback
 - `public/admin/`: painel para foto e serviços
 - `netlify/functions/`: autenticação e persistência segura
-- Netlify Blobs: conta, sessões, foto e serviços alterados pelo painel
+- Netlify Blobs: usuários do cliente, sessões, foto e serviços alterados pelo painel
 
 Não há banco de dados tradicional.
 
-## Primeiro acesso
+## Acesso Master Retorna
 
-O acesso inicial fica em `netlify/functions/_config/bootstrap.json`.
+Cada site possui uma identidade Master da Retorna separada dos usuários do cliente.
 
-O arquivo contém somente:
+A credencial Master fica somente nas variáveis secretas da Netlify Functions:
 
-- hash SHA-256 do e-mail;
-- salt da senha;
-- hash `scrypt` da senha temporária.
+- `MASTER_EMAIL_HASH`: hash SHA-256 do e-mail;
+- `MASTER_SALT`: salt exclusivo do projeto;
+- `MASTER_PASSWORD_HASH`: hash `scrypt` da senha.
+
+Nenhum material da credencial Master é versionado no GitHub.
+
+A conta Master:
+
+- não é armazenada na lista de usuários do cliente;
+- não aparece no painel do proprietário;
+- não pode ser excluída, desativada ou alterada pelo cliente;
+- não exige troca de senha no primeiro acesso;
+- pode cadastrar o primeiro proprietário do site.
 
 Nenhuma senha em texto puro ou Base64 é publicada.
 
-No primeiro login válido, a conta é criada no Netlify Blobs e o painel obriga a criação de uma nova senha.
+## Primeiro proprietário
+
+O Master acessa `/admin/` e cadastra o perfil do dono com e-mail e senha temporária.
+
+Se ainda não houver proprietário ativo, o primeiro usuário criado pelo Master é automaticamente registrado como `owner`, independentemente da opção selecionada no formulário.
+
+O proprietário será obrigado a trocar a senha temporária no primeiro login.
 
 ## Painel
 
@@ -34,8 +50,6 @@ Acesse `/admin/`.
 O titular pode trocar a senha temporária, enviar ou substituir a foto e cadastrar, editar, ocultar ou excluir serviços.
 
 ### Usuários e permissões
-
-O primeiro acesso é migrado automaticamente para o perfil `owner`.
 
 Perfis disponíveis:
 
@@ -68,3 +82,5 @@ Proteções aplicadas:
 
 - `backup/pre-retorna-template-2026-09-02`
 - `backup-auth-blobs-2026-09-02`
+- `backup/pre-multiuser-2026-09-03`
+- `backup/pre-master-retorna-2026-09-03`

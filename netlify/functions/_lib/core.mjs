@@ -1,5 +1,4 @@
 import { getStore } from "@netlify/blobs";
-import bootstrap from "../_config/bootstrap.json" with { type: "json" };
 import {
   createHash,
   randomBytes,
@@ -13,6 +12,9 @@ const scrypt = promisify(scryptCallback);
 const SESSION_COOKIE = "rt_session";
 const SESSION_SECONDS = 60 * 60 * 12;
 const MAX_USERS = 20;
+const MASTER_ID = "retorna-master";
+const MASTER_SESSION_VERSION = 1;
+const LEGACY_MASTER_USER_ID = "owner-b88675c26ba89aba";
 
 export const fail = (message, status = 400) => {
   const error = new Error(message);
@@ -53,9 +55,9 @@ const passwordHash = async (password, salt) => {
   return Buffer.from(derived).toString("hex");
 };
 
-const verifyPassword = async (password, user) => {
-  const candidate = Buffer.from(await passwordHash(password, user.salt), "hex");
-  const expected = Buffer.from(user.passwordHash, "hex");
+const verifyPassword = async (password, credential) => {
+  const candidate = Buffer.from(await passwordHash(password, credential.salt), "hex");
+  const expected = Buffer.from(credential.passwordHash, "hex");
   return candidate.length === expected.length && timingSafeEqual(candidate, expected);
 };
 
@@ -70,6 +72,38 @@ const validatePassword = (password) => {
     throw fail("Use ao menos 12 caracteres, com letras, número e caractere especial.", 400);
   }
   return value;
+};
+
+const masterPrincipal = () => ({
+  id: MASTER_ID,
+  name: "Retorna",
+  role: "master",
+  active: true,
+  mustChangePassword: false,
+  sessionVersion: MASTER_SESSION_VERSION,
+  isMaster: true
+});
+
+const authenticateMaster = async (email, password) => {
+  const normalizedEmail = normalizeEmail(email);
+  const emailHash = String(process.env.MASTER_EMAIL_HASH || "");
+  const salt = String(process.env.MASTER_SALT || "");
+  const storedPasswordHash = String(process.env.MASTER_PASSWORD_HASH || "");
+
+  if (!emailHash || !salt || !storedPasswordHash) {
+    throw fail("Acesso Master ainda não foi configurado.", 503);
+  }
+
+  if (digest(normalizedEmail) !== emailHash) return null;
+
+  const valid = await verifyPassword(password, {
+    salt,
+    passwordHash: storedPasswordHash
+  });
+
+  if (!valid) throw fail("E-mail ou senha inválidos.", 401);
+
+  return masterPrincipal();
 };
 
 const publicUser = (user) => ({
@@ -88,90 +122,34 @@ const saveUsers = async (users) => {
   return users;
 };
 
-const migrateLegacyAccount = async () => {
-  const store = authStore();
-  const legacy = await store.get("account", { type: "json", consistency: "strong" });
-  if (!legacy || !legacy.email || !legacy.passwordHash || !legacy.salt) return [];
-
-  const user = {
-    id: "owner-" + digest(normalizeEmail(legacy.email)).slice(0, 16),
-    name: "",
-    email: normalizeEmail(legacy.email),
-    role: "owner",
-    active: true,
-    salt: legacy.salt,
-    passwordHash: legacy.passwordHash,
-    mustChangePassword: legacy.mustChangePassword !== false,
-    sessionVersion: Number(legacy.sessionVersion || 1),
-    createdAt: legacy.createdAt || Date.now(),
-    updatedAt: Date.now()
-  };
-
-  const result = await store.setJSON("users", [user], { onlyIfNew: true });
-  if (result.modified) return [user];
-
-  const current = await store.get("users", { type: "json", consistency: "strong" });
-  return Array.isArray(current) ? current : [];
-};
-
 export const getUsers = async () => {
-  const users = await authStore().get("users", { type: "json", consistency: "strong" });
-  if (Array.isArray(users) && users.length) return users;
-  return migrateLegacyAccount();
+  const store = authStore();
+  const stored = await store.get("users", {
+    type: "json",
+    consistency: "strong"
+  });
+
+  if (!Array.isArray(stored)) return [];
+
+  const users = stored.filter((user) => user && user.id !== LEGACY_MASTER_USER_ID);
+
+  if (users.length !== stored.length) {
+    await saveUsers(users);
+  }
+
+  return users;
 };
 
 const findUserById = (users, id) => users.find((user) => user.id === id);
 const findUserByEmail = (users, email) =>
   users.find((user) => normalizeEmail(user.email) === normalizeEmail(email));
 
-const createBootstrapOwner = async (email, password) => {
-  const normalizedEmail = normalizeEmail(email);
-  const bootstrapEmailHash = String(bootstrap.emailHash || "");
-  const bootstrapSalt = String(bootstrap.salt || "");
-  const bootstrapPasswordHash = String(bootstrap.passwordHash || "");
-
-  if (!bootstrapEmailHash || !bootstrapSalt || !bootstrapPasswordHash) {
-    throw fail("Acesso inicial ainda não foi configurado.", 503);
-  }
-
-  const emailMatches = digest(normalizedEmail) === bootstrapEmailHash;
-  const passwordMatches = await verifyPassword(password, {
-    salt: bootstrapSalt,
-    passwordHash: bootstrapPasswordHash
-  });
-
-  if (!emailMatches || !passwordMatches) throw fail("E-mail ou senha inválidos.", 401);
-
-  const owner = {
-    id: "owner-" + digest(normalizedEmail).slice(0, 16),
-    name: "",
-    email: normalizedEmail,
-    role: "owner",
-    active: true,
-    salt: bootstrapSalt,
-    passwordHash: bootstrapPasswordHash,
-    mustChangePassword: true,
-    sessionVersion: 1,
-    createdAt: Date.now(),
-    updatedAt: Date.now()
-  };
-
-  const result = await authStore().setJSON("users", [owner], { onlyIfNew: true });
-  if (result.modified) return owner;
+export const authenticatePrincipal = async (email, password) => {
+  const master = await authenticateMaster(email, password);
+  if (master) return master;
 
   const users = await getUsers();
-  return findUserByEmail(users, normalizedEmail);
-};
-
-export const bootstrapOrAuthenticate = async (email, password) => {
-  const normalizedEmail = normalizeEmail(email);
-  let users = await getUsers();
-  let user = findUserByEmail(users, normalizedEmail);
-
-  if (!users.length) {
-    user = await createBootstrapOwner(normalizedEmail, password);
-    users = await getUsers();
-  }
+  const user = findUserByEmail(users, email);
 
   if (!user || user.active === false || !(await verifyPassword(password, user))) {
     throw fail("E-mail ou senha inválidos.", 401);
@@ -179,6 +157,8 @@ export const bootstrapOrAuthenticate = async (email, password) => {
 
   return user;
 };
+
+export const bootstrapOrAuthenticate = authenticatePrincipal;
 
 export const checkLoginRate = async (ip) => {
   const key = "login/" + digest(ip || "unknown");
@@ -205,14 +185,22 @@ export const recordLoginFailure = async (key, state) => {
 export const clearLoginFailures = async (key) => rateStore().delete(key);
 const sessionKey = (token) => "session/" + digest(token);
 
-export const createSession = async (user) => {
+export const createSession = async (principal) => {
   const token = randomBytes(32).toString("base64url");
+  const session = principal.role === "master"
+    ? {
+        principalType: "master",
+        version: MASTER_SESSION_VERSION,
+        expiresAt: Date.now() + SESSION_SECONDS * 1000
+      }
+    : {
+        principalType: "user",
+        userId: principal.id,
+        version: principal.sessionVersion,
+        expiresAt: Date.now() + SESSION_SECONDS * 1000
+      };
 
-  await authStore().setJSON(sessionKey(token), {
-    userId: user.id,
-    version: user.sessionVersion,
-    expiresAt: Date.now() + SESSION_SECONDS * 1000
-  });
+  await authStore().setJSON(sessionKey(token), session);
 
   return {
     token,
@@ -248,6 +236,15 @@ export const requireSession = async (req, { allowPasswordChange = false } = {}) 
     throw fail("Sessão expirada. Entre novamente.", 401);
   }
 
+  if (session.principalType === "master") {
+    if (session.version !== MASTER_SESSION_VERSION) {
+      await store.delete(sessionKey(token));
+      throw fail("Sessão inválida. Entre novamente.", 401);
+    }
+
+    return { user: masterPrincipal(), account: masterPrincipal(), token };
+  }
+
   const users = await getUsers();
   const user = findUserById(users, session.userId);
 
@@ -264,10 +261,16 @@ export const requireSession = async (req, { allowPasswordChange = false } = {}) 
 };
 
 export const requireOwner = (user) => {
-  if (!user || user.role !== "owner") throw fail("Acesso restrito ao proprietário.", 403);
+  if (!user || !["master", "owner"].includes(user.role)) {
+    throw fail("Acesso restrito ao proprietário.", 403);
+  }
 };
 
 export const changePassword = async (user, currentPassword, newPassword) => {
+  if (user.role === "master") {
+    throw fail("A credencial Master é gerenciada pela Retorna.", 403);
+  }
+
   if (!(await verifyPassword(currentPassword, user))) {
     throw fail("A senha atual está incorreta.", 401);
   }
@@ -310,10 +313,17 @@ export const createManagedUser = async (actor, input = {}) => {
 
   const email = normalizeEmail(input.email);
   const name = String(input.name || "").trim().slice(0, 100);
-  const role = input.role === "owner" ? "owner" : "editor";
+  const requestedRole = input.role === "owner" ? "owner" : "editor";
+  const role =
+    actor.role === "master" && activeOwnerCount(users) === 0
+      ? "owner"
+      : requestedRole;
   const temporaryPassword = validatePassword(input.temporaryPassword);
 
   if (!email || !email.includes("@")) throw fail("Informe um e-mail válido.", 400);
+  if (digest(email) === String(process.env.MASTER_EMAIL_HASH || "")) {
+    throw fail("Este e-mail é reservado para a administração da Retorna.", 409);
+  }
   if (findUserByEmail(users, email)) throw fail("Já existe um usuário com este e-mail.", 409);
 
   const salt = randomBytes(16).toString("hex");
@@ -383,7 +393,10 @@ export const updateManagedUser = async (actor, id, input = {}) => {
 
 export const resetManagedUserPassword = async (actor, id, temporaryPassword) => {
   requireOwner(actor);
-  if (actor.id === id) throw fail("Altere sua própria senha pelo fluxo de segurança.", 400);
+
+  if (actor.role !== "master" && actor.id === id) {
+    throw fail("Altere sua própria senha pelo fluxo de segurança.", 400);
+  }
 
   const value = validatePassword(temporaryPassword);
   const users = await getUsers();
@@ -406,7 +419,10 @@ export const resetManagedUserPassword = async (actor, id, temporaryPassword) => 
 
 export const deleteManagedUser = async (actor, id) => {
   requireOwner(actor);
-  if (actor.id === id) throw fail("Você não pode excluir seu próprio usuário.", 400);
+
+  if (actor.role !== "master" && actor.id === id) {
+    throw fail("Você não pode excluir seu próprio usuário.", 400);
+  }
 
   const users = await getUsers();
   const target = findUserById(users, id);
@@ -417,7 +433,7 @@ export const deleteManagedUser = async (actor, id) => {
     target.active !== false &&
     activeOwnerCount(users) <= 1
   ) {
-    throw fail("É necessário manter pelo menos um proprietário ativo.", 400);
+    throw fail("Cadastre outro proprietário ativo antes de remover este.", 400);
   }
 
   await saveUsers(users.filter((user) => user.id !== id));

@@ -92,7 +92,10 @@ const showView = (view) => {
   view.classList.remove("hidden");
 };
 
-const roleLabel = (role) => role === "owner" ? "Proprietário" : "Editor";
+const roleLabel = (role) => {
+  if (role === "master") return "Master Retorna";
+  return role === "owner" ? "Proprietário" : "Editor";
+};
 
 const createId = (title) => {
   const slug = title
@@ -220,7 +223,7 @@ const loadPhoto = (photoUrl) => {
 };
 
 const loadUsers = async () => {
-  if (!currentUser || currentUser.role !== "owner") {
+  if (!currentUser || !["master", "owner"].includes(currentUser.role)) {
     usersPanel.classList.add("hidden");
     users = [];
     return;
@@ -228,6 +231,15 @@ const loadUsers = async () => {
 
   const result = await api("/api/admin/users");
   users = Array.isArray(result.users) ? result.users : [];
+
+  const hasOwner = users.some((user) =>
+    user.role === "owner" && user.active !== false
+  );
+
+  if (currentUser.role === "master" && !hasOwner) {
+    userRole.value = "owner";
+  }
+
   usersPanel.classList.remove("hidden");
   renderUsers();
 };
@@ -262,7 +274,7 @@ const loadDashboard = async () => {
   renderServices();
   loadPhoto(contentResult.photoUrl);
 
-  if (currentUser.role === "owner") {
+  if (["master", "owner"].includes(currentUser.role)) {
     await loadUsers();
   } else {
     usersPanel.classList.add("hidden");
