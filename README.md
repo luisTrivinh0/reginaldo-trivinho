@@ -1,129 +1,48 @@
-# Reginaldo Trivinho — Landing Page
+# Reginaldo Trivinho — Landing Page Powered by Retorna
 
-Primeira landing page do modelo de sites profissionais da Retorna, atualmente configurada para Reginaldo Trivinho, Assistente Técnico Jurídico.
+Primeira implementação do template de landing pages profissionais da Retorna.
 
-## Objetivo
+## Arquitetura
 
-Este repositório funciona em dois papéis:
+- `public/`: site público e painel do titular
+- `public/site.config.js`: identidade e contatos do cliente
+- `public/data/services.json`: serviços iniciais e fallback
+- `public/admin/`: painel para foto e serviços
+- `netlify/functions/`: autenticação e persistência segura
+- Netlify Blobs: conta, sessões, foto e serviços alterados pelo painel
 
-- site profissional do Reginaldo Trivinho;
-- base reutilizável para novas landing pages desenvolvidas pela Retorna.
+Não há banco de dados tradicional.
 
-O projeto é estático, sem build obrigatório, sem banco de dados e sem dependências de runtime.
+## Primeiro acesso
 
-## Estrutura
+Configure somente nas variáveis de ambiente da Netlify:
 
-- `index.html`: estrutura e conteúdo principal da landing
-- `styles.css`: identidade visual e responsividade
-- `site.config.js`: configuração central de cliente, contato, repositório e assinatura Retorna
-- `app.js`: aplicação das configurações e carregamento dos serviços
-- `data/services.json`: catálogo publicado
-- `admin/`: área administrativa para CRUD dos serviços
-- `favicon.svg`: favicon do cliente
-- `netlify.toml`: configuração de publicação e headers para Netlify
+- `INITIAL_ADMIN_EMAIL`
+- `INITIAL_ADMIN_PASSWORD`
 
-## Configuração por cliente
+Nenhuma credencial inicial deve ser adicionada ao GitHub, HTML ou JavaScript público.
 
-Para reutilizar o template, comece por `site.config.js`.
+No primeiro login, a conta é criada no Netlify Blobs com senha derivada por `scrypt` e o painel obriga a criação de uma nova senha.
 
-Centralize nele:
+## Painel
 
-- nome;
-- iniciais;
-- função ou segmento;
-- telefone;
-- WhatsApp;
-- e-mails;
-- repositório GitHub;
-- branch;
-- assinatura Powered by Retorna.
+Acesse `/admin/`.
 
-Depois personalize no `index.html`:
+O titular pode trocar a senha temporária, enviar ou substituir a foto e cadastrar, editar, ocultar ou excluir serviços.
 
-- SEO;
-- headline;
-- apresentação;
-- diferenciais;
-- provas;
-- textos de contato;
-- conteúdo específico do segmento.
+## Segurança
 
-Os serviços continuam isolados em `data/services.json`.
+- credenciais iniciais apenas em variáveis de ambiente;
+- senha nunca armazenada em texto puro;
+- troca obrigatória no primeiro login;
+- sessão server-side com cookie HttpOnly, Secure e SameSite=Strict;
+- invalidação das sessões após troca de senha;
+- limitação básica de tentativas por IP;
+- verificação de origem em escrita;
+- foto limitada a JPG, PNG ou WebP de até 4 MB;
+- Functions fora da pasta publicada.
 
-## Powered by Retorna
+## Backups
 
-O rodapé público possui uma assinatura discreta:
-
-`Powered by Retorna`
-
-O destino padrão é:
-
-`https://retornaservicos.com.br`
-
-A configuração fica em `site.config.js`.
-
-## Publicação na Netlify
-
-O projeto já está preparado para publicação estática na Netlify.
-
-Configuração esperada:
-
-- repository: este repositório
-- branch: `main`
-- build command: vazio
-- publish directory: `.`
-
-O arquivo `netlify.toml` já define o diretório publicado e headers básicos.
-
-Depois da publicação, um subdomínio pode ser conectado, por exemplo:
-
-`reginaldo.retornaservicos.com.br`
-
-## Área administrativa
-
-Acesse:
-
-`/admin/`
-
-O painel permite:
-
-- cadastrar serviços;
-- editar serviços;
-- ocultar ou reativar serviços;
-- excluir serviços.
-
-As alterações são gravadas diretamente em `data/services.json` e geram commits na branch configurada em `site.config.js`.
-
-## Chave administrativa
-
-A área administrativa usa uma Fine-grained Personal Access Token do GitHub limitada somente ao repositório do cliente.
-
-Configuração recomendada:
-
-- Repository access: **Only select repositories**
-- Repository permissions:
-  - **Contents: Read and write**
-
-Não conceda permissões adicionais.
-
-A chave não é armazenada no código, em `localStorage` ou em `sessionStorage`. Ela permanece somente na memória da aba enquanto o painel está aberto.
-
-## Segurança e manutenção
-
-Para cada novo cliente:
-
-1. crie um repositório próprio a partir desta base;
-2. altere `site.config.js`;
-3. personalize conteúdo, favicon e identidade visual;
-4. limite o token administrativo somente ao repositório daquele cliente;
-5. conecte o repositório à Netlify;
-6. aponte o subdomínio ou domínio próprio;
-7. valide desktop, mobile, WhatsApp, telefone, e-mails e CRUD.
-
-## Backup da versão anterior
-
-Antes da conversão para template Retorna foi criada a branch:
-
-`backup/pre-retorna-template-2026-09-02`
-
-Ela preserva o estado anterior da landing.
+- `backup/pre-retorna-template-2026-09-02`
+- `backup-auth-blobs-2026-09-02`

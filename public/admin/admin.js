@@ -1,0 +1,334 @@
+const siteConfig = window.SITE_CONFIG || {};
+const loginView = document.querySelector("#login-view");
+const passwordView = document.querySelector("#password-view");
+const dashboardView = document.querySelector("#dashboard-view");
+const loginForm = document.querySelector("#login-form");
+const passwordForm = document.querySelector("#password-form");
+const photoForm = document.querySelector("#photo-form");
+const serviceForm = document.querySelector("#service-form");
+const logoutButton = document.querySelector("#logout-button");
+const loginStatus = document.querySelector("#login-status");
+const passwordStatus = document.querySelector("#password-status");
+const photoStatus = document.querySelector("#photo-status");
+const formStatus = document.querySelector("#form-status");
+const servicesList = document.querySelector("#services-list");
+const servicesCount = document.querySelector("#services-count");
+const serviceId = document.querySelector("#service-id");
+const serviceTitle = document.querySelector("#service-title");
+const serviceDescription = document.querySelector("#service-description");
+const servicePoints = document.querySelector("#service-points");
+const serviceActive = document.querySelector("#service-active");
+const saveButton = document.querySelector("#save-button");
+const formTitle = document.querySelector("#form-title");
+const cancelEdit = document.querySelector("#cancel-edit");
+const photoInput = document.querySelector("#photo-input");
+const photoPreview = document.querySelector("#photo-preview");
+const photoPlaceholder = document.querySelector("#photo-placeholder");
+let services = [];
+
+const escapeHtml = (value = "") =>
+  String(value).replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+  }[char]));
+
+const setStatus = (element, message = "", type = "") => {
+  element.textContent = message;
+  element.className = "status" + (type ? " " + type : "");
+};
+
+const api = async (url, options = {}) => {
+  const headers = { Accept: "application/json", ...(options.headers || {}) };
+  if (!(options.body instanceof FormData)) headers["Content-Type"] = "application/json";
+
+  const response = await fetch(url, { credentials: "same-origin", ...options, headers });
+  const body = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const error = new Error(body.message || "Não foi possível concluir a operação.");
+    error.status = response.status;
+    throw error;
+  }
+
+  return body;
+};
+
+const applyBrand = () => {
+  const brand = siteConfig.brand || {};
+  document.querySelectorAll("[data-site-name]").forEach((element) => {
+    element.textContent = brand.name || element.textContent;
+  });
+  document.querySelectorAll("[data-site-initials]").forEach((element) => {
+    element.textContent = brand.initials || element.textContent;
+  });
+};
+
+const showView = (view) => {
+  [loginView, passwordView, dashboardView].forEach((item) => item.classList.add("hidden"));
+  view.classList.remove("hidden");
+};
+
+const createId = (title) => {
+  const slug = title.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 70);
+  let candidate = slug || "servico";
+  let index = 2;
+  while (services.some((item) => item.id === candidate)) {
+    candidate = slug + "-" + index;
+    index += 1;
+  }
+  return candidate;
+};
+
+const renderServices = () => {
+  servicesCount.textContent = String(services.length);
+
+  if (!services.length) {
+    servicesList.innerHTML = '<div class="empty-state">Nenhum serviço cadastrado.</div>';
+    return;
+  }
+
+  servicesList.innerHTML = services.map((service) => {
+    const isActive = service.active !== false;
+    return (
+      '<article class="service-item' + (isActive ? "" : " inactive") + '">' +
+      '<div class="service-item-heading"><div><h3>' + escapeHtml(service.title) +
+      "</h3><p>" + escapeHtml(service.description) + "</p></div>" +
+      '<span class="badge' + (isActive ? "" : " inactive") + '">' +
+      (isActive ? "Ativo" : "Oculto") + "</span></div>" +
+      '<div class="service-actions"><button type="button" data-action="edit" data-id="' +
+      escapeHtml(service.id) + '">Editar</button><button class="delete" type="button" data-action="delete" data-id="' +
+      escapeHtml(service.id) + '">Excluir</button></div></article>'
+    );
+  }).join("");
+};
+
+const resetServiceForm = () => {
+  serviceForm.reset();
+  serviceId.value = "";
+  serviceActive.checked = true;
+  formTitle.textContent = "Novo serviço";
+  saveButton.textContent = "Cadastrar serviço";
+  cancelEdit.classList.add("hidden");
+  setStatus(formStatus);
+};
+
+const saveServices = async () => {
+  await api("/api/admin/services", { method: "PUT", body: JSON.stringify({ services }) });
+};
+
+const loadPhoto = (photoUrl) => {
+  if (!photoUrl) return;
+  photoPreview.src = photoUrl;
+  photoPreview.hidden = false;
+  photoPlaceholder.hidden = true;
+};
+
+const loadDashboard = async () => {
+  showView(dashboardView);
+
+  const [serviceResult, contentResult] = await Promise.all([
+    api("/api/admin/services"),
+    fetch("/api/content", { headers: { Accept: "application/json" } })
+      .then((response) => response.ok ? response.json() : {})
+      .catch(() => ({}))
+  ]);
+
+  if (Array.isArray(serviceResult.services)) {
+    services = serviceResult.services;
+  } else {
+    const response = await fetch("../data/services.json?v=" + Date.now());
+    services = response.ok ? await response.json() : [];
+    if (!Array.isArray(services)) services = [];
+  }
+
+  renderServices();
+  loadPhoto(contentResult.photoUrl);
+};
+
+loginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const button = loginForm.querySelector("button[type='submit']");
+  button.disabled = true;
+  setStatus(loginStatus, "Validando acesso...");
+
+  try {
+    const result = await api("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({
+        email: document.querySelector("#email").value.trim(),
+        password: document.querySelector("#password").value
+      })
+    });
+
+    document.querySelector("#password").value = "";
+    setStatus(loginStatus);
+
+    if (result.mustChangePassword) {
+      showView(passwordView);
+      document.querySelector("#current-password").focus();
+    } else {
+      await loadDashboard();
+    }
+  } catch (error) {
+    setStatus(loginStatus, error.message, "error");
+  } finally {
+    button.disabled = false;
+  }
+});
+
+passwordForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const button = passwordForm.querySelector("button[type='submit']");
+  const currentPassword = document.querySelector("#current-password").value;
+  const newPassword = document.querySelector("#new-password").value;
+  const confirmPassword = document.querySelector("#confirm-password").value;
+
+  if (newPassword !== confirmPassword) {
+    setStatus(passwordStatus, "As novas senhas não coincidem.", "error");
+    return;
+  }
+
+  button.disabled = true;
+  setStatus(passwordStatus, "Salvando nova senha...");
+
+  try {
+    await api("/api/auth/change-password", {
+      method: "POST",
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+    passwordForm.reset();
+    await loadDashboard();
+  } catch (error) {
+    setStatus(passwordStatus, error.message, "error");
+  } finally {
+    button.disabled = false;
+  }
+});
+
+logoutButton.addEventListener("click", async () => {
+  try {
+    await api("/api/auth/logout", { method: "POST", body: "{}" });
+  } finally {
+    services = [];
+    showView(loginView);
+    loginForm.reset();
+  }
+});
+
+photoInput.addEventListener("change", () => {
+  const file = photoInput.files && photoInput.files[0];
+  if (!file) return;
+  photoPreview.src = URL.createObjectURL(file);
+  photoPreview.hidden = false;
+  photoPlaceholder.hidden = true;
+});
+
+photoForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const button = photoForm.querySelector("button[type='submit']");
+  const file = photoInput.files && photoInput.files[0];
+  if (!file) return;
+
+  button.disabled = true;
+  setStatus(photoStatus, "Enviando foto...");
+
+  try {
+    const formData = new FormData();
+    formData.append("photo", file);
+    const result = await api("/api/admin/photo", { method: "POST", body: formData });
+    loadPhoto(result.photoUrl);
+    photoInput.value = "";
+    setStatus(photoStatus, "Foto atualizada com sucesso.", "success");
+  } catch (error) {
+    setStatus(photoStatus, error.message, "error");
+  } finally {
+    button.disabled = false;
+  }
+});
+
+serviceForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const editingId = serviceId.value;
+  const title = serviceTitle.value.trim();
+  const description = serviceDescription.value.trim();
+  const points = servicePoints.value.split("\n").map((item) => item.trim()).filter(Boolean);
+  if (!title || !description) return;
+
+  saveButton.disabled = true;
+  setStatus(formStatus, editingId ? "Salvando alterações..." : "Cadastrando serviço...");
+
+  try {
+    if (editingId) {
+      const index = services.findIndex((item) => item.id === editingId);
+      if (index < 0) throw new Error("Serviço não encontrado.");
+      services[index] = { ...services[index], title, description, points, active: serviceActive.checked };
+    } else {
+      services.push({ id: createId(title), title, description, points, active: serviceActive.checked });
+    }
+
+    await saveServices();
+    renderServices();
+    resetServiceForm();
+    setStatus(formStatus, "Serviço salvo e publicado.", "success");
+  } catch (error) {
+    setStatus(formStatus, error.message, "error");
+  } finally {
+    saveButton.disabled = false;
+  }
+});
+
+servicesList.addEventListener("click", async (event) => {
+  const button = event.target.closest("button[data-action]");
+  if (!button) return;
+  const item = services.find((service) => service.id === button.dataset.id);
+  if (!item) return;
+
+  if (button.dataset.action === "edit") {
+    serviceId.value = item.id;
+    serviceTitle.value = item.title;
+    serviceDescription.value = item.description;
+    servicePoints.value = Array.isArray(item.points) ? item.points.join("\n") : "";
+    serviceActive.checked = item.active !== false;
+    formTitle.textContent = "Editar serviço";
+    saveButton.textContent = "Salvar alterações";
+    cancelEdit.classList.remove("hidden");
+    setStatus(formStatus);
+    window.scrollTo({ top: document.querySelector(".content-grid").offsetTop - 100, behavior: "smooth" });
+    return;
+  }
+
+  if (button.dataset.action === "delete") {
+    if (!window.confirm('Excluir o serviço "' + item.title + '"?')) return;
+    button.disabled = true;
+    const previous = services;
+    services = services.filter((service) => service.id !== item.id);
+
+    try {
+      await saveServices();
+      renderServices();
+      if (serviceId.value === item.id) resetServiceForm();
+      setStatus(formStatus, "Serviço excluído com sucesso.", "success");
+    } catch (error) {
+      services = previous;
+      renderServices();
+      setStatus(formStatus, error.message, "error");
+    }
+  }
+});
+
+cancelEdit.addEventListener("click", resetServiceForm);
+
+const restoreSession = async () => {
+  applyBrand();
+
+  try {
+    const session = await api("/api/auth/session");
+    if (!session.authenticated) return showView(loginView);
+    if (session.mustChangePassword) return showView(passwordView);
+    await loadDashboard();
+  } catch {
+    showView(loginView);
+  }
+};
+
+restoreSession();

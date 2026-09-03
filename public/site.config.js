@@ -1,6 +1,4 @@
 window.SITE_CONFIG = {
-  repository: "luisTrivinh0/reginaldo-trivinho",
-  branch: "main",
   brand: {
     name: "Reginaldo Trivinho",
     initials: "RT",
