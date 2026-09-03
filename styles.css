@@ -789,6 +789,13 @@ a {
   color: var(--bronze-600);
 }
 
+.powered-by {
+  padding-left: 18px;
+  border-left: 1px solid var(--line);
+  color: var(--bronze-600);
+  font-weight: 700;
+}
+
 .empty-services {
   grid-column: 1 / -1;
   padding: 30px;
