@@ -15,10 +15,10 @@
 <body>
   <header class="site-header">
     <a class="brand" href="#inicio" aria-label="Reginaldo Trivinho - início">
-      <span class="brand-mark">RT</span>
+      <span class="brand-mark" data-site-initials>RT</span>
       <span class="brand-copy">
-        <strong>Reginaldo Trivinho</strong>
-        <small>Assistente Técnico Jurídico</small>
+        <strong data-site-name>Reginaldo Trivinho</strong>
+        <small data-site-role>Assistente Técnico Jurídico</small>
       </span>
     </a>
 
@@ -26,7 +26,7 @@
       <a href="#sobre">Sobre</a>
       <a href="#servicos">Serviços</a>
       <a href="#contato">Contato</a>
-      <a class="nav-cta" href="https://wa.me/5511972670073?text=Olá%2C%20Reginaldo.%20Gostaria%20de%20conversar%20sobre%20assistência%20técnica%20jurídica." target="_blank" rel="noreferrer">Falar agora</a>
+      <a class="nav-cta" data-whatsapp-link href="https://wa.me/5511972670073" target="_blank" rel="noreferrer">Falar agora</a>
     </nav>
   </header>
 
@@ -42,11 +42,11 @@
         <p class="hero-text">Análise, investigação e suporte técnico especializado a advogados e partes em processos judiciais que envolvam questões de natureza técnica, inclusive na área trabalhista.</p>
 
         <div class="hero-actions">
-          <a class="button button-primary" href="https://wa.me/5511972670073?text=Olá%2C%20Reginaldo.%20Gostaria%20de%20conversar%20sobre%20assistência%20técnica%20jurídica." target="_blank" rel="noreferrer">
+          <a class="button button-primary" data-whatsapp-link href="https://wa.me/5511972670073" target="_blank" rel="noreferrer">
             <span>Falar pelo WhatsApp</span>
             <span class="button-arrow">↗</span>
           </a>
-          <a class="button button-secondary" href="tel:+5511972670073">Ligar agora</a>
+          <a class="button button-secondary" data-phone-link href="tel:+5511972670073">Ligar agora</a>
         </div>
 
         <div class="hero-proof" aria-label="Resumo profissional">
@@ -154,22 +154,22 @@
         <p>Apresente brevemente o caso. O primeiro contato serve para entender a demanda e identificar como a assistência técnica pode contribuir.</p>
 
         <div class="contact-primary-actions">
-          <a class="contact-main-button" href="https://wa.me/5511972670073?text=Olá%2C%20Reginaldo.%20Gostaria%20de%20conversar%20sobre%20assistência%20técnica%20jurídica." target="_blank" rel="noreferrer">
+          <a class="contact-main-button" data-whatsapp-link href="https://wa.me/5511972670073" target="_blank" rel="noreferrer">
             <span>Iniciar conversa no WhatsApp</span>
-            <strong>+55 11 97267-0073</strong>
+            <strong data-phone-display>+55 11 97267-0073</strong>
           </a>
-          <a class="contact-call" href="tel:+5511972670073">Prefere falar? Ligar agora</a>
+          <a class="contact-call" data-phone-link href="tel:+5511972670073">Prefere falar? Ligar agora</a>
         </div>
       </div>
 
       <div class="contact-details">
         <div class="contact-detail">
           <span>E-mail principal</span>
-          <a href="mailto:reginaldo.trivinho@icloud.com">reginaldo.trivinho@icloud.com</a>
+          <a data-email-primary href="mailto:reginaldo.trivinho@icloud.com">reginaldo.trivinho@icloud.com</a>
         </div>
         <div class="contact-detail">
           <span>E-mail alternativo</span>
-          <a href="mailto:retrivinho@gmail.com">retrivinho@gmail.com</a>
+          <a data-email-secondary href="mailto:retrivinho@gmail.com">retrivinho@gmail.com</a>
         </div>
         <div class="contact-detail contact-note">
           <span>Atuação</span>
@@ -180,21 +180,23 @@
   </main>
 
   <div class="mobile-contact-bar" aria-label="Ações de contato">
-    <a href="tel:+5511972670073">Ligar</a>
-    <a class="mobile-whatsapp" href="https://wa.me/5511972670073?text=Olá%2C%20Reginaldo.%20Gostaria%20de%20conversar%20sobre%20assistência%20técnica%20jurídica." target="_blank" rel="noreferrer">WhatsApp</a>
+    <a data-phone-link href="tel:+5511972670073">Ligar</a>
+    <a class="mobile-whatsapp" data-whatsapp-link href="https://wa.me/5511972670073" target="_blank" rel="noreferrer">WhatsApp</a>
   </div>
 
   <footer class="footer">
     <div>
-      <strong>Reginaldo Trivinho</strong>
-      <span>Assistente Técnico Jurídico</span>
+      <strong data-site-name>Reginaldo Trivinho</strong>
+      <span data-site-role>Assistente Técnico Jurídico</span>
     </div>
     <div class="footer-links">
       <a href="#inicio">Voltar ao topo</a>
       <a href="./admin/">Área administrativa</a>
+      <a class="powered-by" data-powered-by href="https://retornaservicos.com.br" target="_blank" rel="noreferrer">Powered by Retorna</a>
     </div>
   </footer>
 
+  <script src="./site.config.js"></script>
   <script src="./app.js" defer></script>
 </body>
 </html>
