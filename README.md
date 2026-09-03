@@ -33,6 +33,25 @@ Acesse `/admin/`.
 
 O titular pode trocar a senha temporária, enviar ou substituir a foto e cadastrar, editar, ocultar ou excluir serviços.
 
+### Usuários e permissões
+
+O primeiro acesso é migrado automaticamente para o perfil `owner`.
+
+Perfis disponíveis:
+
+- `owner`: administra conteúdo, foto, serviços e usuários;
+- `editor`: administra foto e serviços, sem acesso ao gerenciamento de usuários.
+
+O proprietário pode cadastrar, editar, ativar, desativar, redefinir senha temporária e excluir outros usuários.
+
+Proteções aplicadas:
+
+- novos usuários devem trocar a senha temporária no primeiro login;
+- desativar ou alterar o perfil invalida as sessões existentes;
+- o proprietário não pode excluir ou remover o próprio acesso;
+- o sistema sempre exige pelo menos um `owner` ativo;
+- credenciais e hashes nunca são enviados pela API administrativa.
+
 ## Segurança
 
 - credenciais iniciais armazenadas somente como hashes no backend;

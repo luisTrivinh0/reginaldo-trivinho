@@ -38,3 +38,177 @@
   .photo-editor { grid-template-columns: 1fr; }
   .photo-preview { width: 132px; height: 132px; }
 }
+
+.session-role {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--bronze-600);
+  background: var(--sand-25);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.users-panel {
+  margin-top: 18px;
+}
+
+.user-management-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.72fr) minmax(0, 1.28fr);
+  gap: 22px;
+  align-items: start;
+  margin-top: 24px;
+}
+
+.user-form {
+  margin-top: 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--sand-25);
+}
+
+select {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  outline: 0;
+  color: var(--navy-950);
+  background: var(--white);
+  font: inherit;
+}
+
+select:focus {
+  border-color: rgba(167, 121, 67, 0.62);
+  box-shadow: 0 0 0 3px rgba(167, 121, 67, 0.1);
+}
+
+.users-list {
+  display: grid;
+  gap: 10px;
+}
+
+.user-item {
+  padding: 17px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--white);
+}
+
+.user-item.inactive {
+  opacity: 0.66;
+}
+
+.user-item-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.user-identity {
+  min-width: 0;
+}
+
+.user-identity strong,
+.user-identity span {
+  display: block;
+}
+
+.user-identity strong {
+  color: var(--navy-900);
+  font-size: 13px;
+}
+
+.user-identity span {
+  overflow: hidden;
+  margin-top: 3px;
+  color: var(--slate-500);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 5px;
+}
+
+.user-edit-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.user-edit-grid input,
+.user-edit-grid select {
+  min-height: 40px;
+  font-size: 10px;
+}
+
+.user-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.user-actions button {
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--navy-800);
+  background: var(--sand-25);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.user-actions button:hover:not(:disabled) {
+  border-color: var(--line-strong);
+  background: var(--white);
+}
+
+.user-actions .danger {
+  color: var(--danger);
+}
+
+.user-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+@media (max-width: 900px) {
+  .user-management-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 580px) {
+  .session-role {
+    grid-column: 1 / -1;
+    justify-content: center;
+    min-height: 38px;
+  }
+
+  .user-edit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .user-item-heading {
+    flex-direction: column;
+  }
+
+  .user-badges {
+    justify-content: start;
+  }
+}

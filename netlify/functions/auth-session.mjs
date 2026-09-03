@@ -2,17 +2,26 @@ import { errorResponse, json, requireSession } from "./_lib/core.mjs";
 
 export default async (req) => {
   try {
-    if (req.method !== "GET") return json({ message: "Método não permitido." }, 405);
+    if (req.method !== "GET") {
+      return json({ message: "Método não permitido." }, 405);
+    }
 
     try {
-      const { account } = await requireSession(req, { allowPasswordChange: true });
+      const { user } = await requireSession(req, { allowPasswordChange: true });
       return json({
         authenticated: true,
-        mustChangePassword: account.mustChangePassword,
-        email: account.email
+        mustChangePassword: user.mustChangePassword,
+        user: {
+          id: user.id,
+          name: user.name || "",
+          email: user.email,
+          role: user.role
+        }
       });
     } catch (error) {
-      if (error.status === 401) return json({ authenticated: false, mustChangePassword: false }, 200);
+      if (error.status === 401) {
+        return json({ authenticated: false, mustChangePassword: false }, 200);
+      }
       throw error;
     }
   } catch (error) {

@@ -1,21 +1,39 @@
 import {
-  assertMethod, assertSameOrigin, bootstrapOrAuthenticate, checkLoginRate,
-  clearLoginFailures, createSession, errorResponse, json, recordLoginFailure
+  assertMethod,
+  assertSameOrigin,
+  bootstrapOrAuthenticate,
+  checkLoginRate,
+  clearLoginFailures,
+  createSession,
+  errorResponse,
+  json,
+  recordLoginFailure
 } from "./_lib/core.mjs";
 
 export default async (req, context) => {
   try {
     assertMethod(req, ["POST"]);
     assertSameOrigin(req);
+
     const rate = await checkLoginRate(context.ip);
     const body = await req.json().catch(() => ({}));
 
     try {
-      const account = await bootstrapOrAuthenticate(body.email, body.password);
+      const user = await bootstrapOrAuthenticate(body.email, body.password);
       await clearLoginFailures(rate.key);
-      const session = await createSession(account);
+      const session = await createSession(user);
+
       return json(
-        { authenticated: true, mustChangePassword: account.mustChangePassword },
+        {
+          authenticated: true,
+          mustChangePassword: user.mustChangePassword,
+          user: {
+            id: user.id,
+            name: user.name || "",
+            email: user.email,
+            role: user.role
+          }
+        },
         200,
         { "Set-Cookie": session.cookie }
       );

@@ -77,6 +77,7 @@
           <p class="muted">Altere sua foto e mantenha a lista de serviços sempre atualizada.</p>
         </div>
         <div class="dashboard-actions">
+          <span class="session-role" id="session-role"></span>
           <a class="button ghost" href="../" target="_blank" rel="noreferrer">Abrir site</a>
           <button class="button ghost" id="logout-button" type="button">Sair</button>
         </div>
@@ -130,6 +131,46 @@
           <div class="services-list" id="services-list"></div>
         </section>
       </div>
+
+      <section class="panel users-panel hidden" id="users-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="panel-kicker">Acessos</span>
+            <h2>Usuários do painel</h2>
+            <p class="muted">Cadastre proprietários ou editores e controle quem pode administrar este site.</p>
+          </div>
+          <span class="count" id="users-count">0</span>
+        </div>
+
+        <div class="user-management-grid">
+          <form id="user-form" class="user-form">
+            <label>
+              Nome
+              <input id="user-name" type="text" maxlength="100" placeholder="Nome do usuário">
+            </label>
+            <label>
+              E-mail
+              <input id="user-email" type="email" maxlength="180" autocomplete="off" required placeholder="usuario@email.com">
+            </label>
+            <label>
+              Perfil de acesso
+              <select id="user-role">
+                <option value="editor">Editor</option>
+                <option value="owner">Proprietário</option>
+              </select>
+            </label>
+            <label>
+              Senha temporária
+              <input id="user-password" type="password" minlength="12" autocomplete="new-password" required placeholder="Senha de primeiro acesso">
+              <small>O usuário será obrigado a trocar essa senha no primeiro login.</small>
+            </label>
+            <button class="button primary" id="create-user-button" type="submit">Cadastrar usuário</button>
+            <p class="status" id="user-status" aria-live="polite"></p>
+          </form>
+
+          <div class="users-list" id="users-list"></div>
+        </div>
+      </section>
     </section>
   </main>
 
