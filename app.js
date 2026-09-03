@@ -1,4 +1,7 @@
 const servicesGrid = document.querySelector("#services-grid");
+const siteConfig = window.SITE_CONFIG || {};
+const contact = siteConfig.contact || {};
+const brand = siteConfig.brand || {};
 
 const escapeHtml = (value = "") =>
   value.replace(/[&<>"']/g, (char) => ({
@@ -9,11 +12,64 @@ const escapeHtml = (value = "") =>
     "'": "&#039;"
   }[char]));
 
+const whatsappLink = (message) =>
+  "https://wa.me/" +
+  (contact.phoneE164 || "") +
+  "?text=" +
+  encodeURIComponent(message || contact.whatsappMessage || "");
+
 const buildWhatsappLink = (serviceTitle) =>
-  "https://wa.me/5511972670073?text=" +
-  encodeURIComponent(
-    "Olá, Reginaldo. Gostaria de conversar sobre o serviço: " + serviceTitle + "."
+  whatsappLink(
+    "Olá, " +
+      (brand.name ? brand.name.split(" ")[0] : "") +
+      ". Gostaria de conversar sobre o serviço: " +
+      serviceTitle +
+      "."
   );
+
+const applySiteConfig = () => {
+  document.querySelectorAll("[data-site-name]").forEach((element) => {
+    element.textContent = brand.name || element.textContent;
+  });
+
+  document.querySelectorAll("[data-site-role]").forEach((element) => {
+    element.textContent = brand.role || element.textContent;
+  });
+
+  document.querySelectorAll("[data-site-initials]").forEach((element) => {
+    element.textContent = brand.initials || element.textContent;
+  });
+
+  document.querySelectorAll("[data-whatsapp-link]").forEach((element) => {
+    element.href = whatsappLink();
+  });
+
+  document.querySelectorAll("[data-phone-link]").forEach((element) => {
+    element.href = "tel:+" + (contact.phoneE164 || "");
+  });
+
+  document.querySelectorAll("[data-phone-display]").forEach((element) => {
+    element.textContent = contact.phoneDisplay || element.textContent;
+  });
+
+  document.querySelectorAll("[data-email-primary]").forEach((element) => {
+    if (!contact.emailPrimary) return;
+    element.href = "mailto:" + contact.emailPrimary;
+    element.textContent = contact.emailPrimary;
+  });
+
+  document.querySelectorAll("[data-email-secondary]").forEach((element) => {
+    if (!contact.emailSecondary) return;
+    element.href = "mailto:" + contact.emailSecondary;
+    element.textContent = contact.emailSecondary;
+  });
+
+  document.querySelectorAll("[data-powered-by]").forEach((element) => {
+    if (!siteConfig.poweredBy) return;
+    element.textContent = siteConfig.poweredBy.label || element.textContent;
+    element.href = siteConfig.poweredBy.url || element.href;
+  });
+};
 
 const renderServices = (services) => {
   if (!services.length) {
@@ -68,4 +124,5 @@ const loadServices = async () => {
   }
 };
 
+applySiteConfig();
 loadServices();
