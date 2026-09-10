@@ -31,6 +31,9 @@ const applySiteConfig = () => {
   document.querySelectorAll("[data-site-role]").forEach((element) => {
     element.textContent = brand.role || element.textContent;
   });
+  document.querySelectorAll("[data-site-crea]").forEach((element) => {
+    element.textContent = brand.crea || element.textContent;
+  });
   document.querySelectorAll("[data-site-initials]").forEach((element) => {
     element.textContent = brand.initials || element.textContent;
   });
