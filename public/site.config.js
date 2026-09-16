@@ -2,7 +2,7 @@ window.SITE_CONFIG = {
   brand: {
     name: "Reginaldo Trivinho",
     initials: "RT",
-    role: "Engenheiro Eletrônico | Assistência Técnica",
+    role: "Engenheiro Eletrônico | Especialista em Perícias Judiciais",
     crea: "CREA-SP nº 5069843080"
   },
   contact: {
@@ -10,7 +10,7 @@ window.SITE_CONFIG = {
     phoneDisplay: "+55 11 97267-0073",
     emailPrimary: "reginaldo.trivinho@icloud.com",
     emailSecondary: "retrivinho@gmail.com",
-    whatsappMessage: "Olá, Reginaldo. Gostaria de solicitar uma avaliação de assistência técnica em Engenharia Eletrônica."
+    whatsappMessage: "Olá, Reginaldo. Gostaria de apresentar uma demanda relacionada a Perícia Judicial ou assistência técnica em Engenharia Eletrônica."
   },
   poweredBy: {
     label: "Powered by Retorna",
