@@ -1,45 +1,45 @@
 [
   {
-    "id": "assistencia-tecnica-eletronica",
-    "title": "Assistência Técnica em Equipamentos Eletrônicos",
-    "description": "Avaliação técnica de equipamentos eletrônicos para compreender sintomas, identificar condições de funcionamento e orientar os próximos passos dentro da área de Engenharia Eletrônica.",
+    "id": "pericia-equipamentos-eletronicos",
+    "title": "Perícia em Equipamentos Eletrônicos",
+    "description": "Análise técnica de equipamentos eletrônicos para examinar condições de funcionamento, falhas, registros, documentação e demais elementos relevantes ao esclarecimento da questão técnica discutida.",
     "points": [
-      "Avaliação técnica",
-      "Equipamentos eletrônicos",
-      "Orientação de próximos passos"
+      "Falhas e funcionamento",
+      "Evidências técnicas",
+      "Análise fundamentada"
     ],
     "active": true
   },
   {
-    "id": "diagnostico-falhas",
-    "title": "Diagnóstico e Análise de Falhas",
-    "description": "Investigação de falhas, interrupções e comportamentos irregulares, considerando sintomas, histórico e evidências disponíveis para buscar causas tecnicamente identificáveis.",
+    "id": "sistemas-instalacoes-eletronicas",
+    "title": "Análise de Sistemas e Instalações Eletrônicas",
+    "description": "Avaliação técnica de sistemas e instalações eletrônicas quanto a funcionamento, desempenho, condições observáveis, documentação e possíveis irregularidades compatíveis com a área de Engenharia Eletrônica.",
     "points": [
-      "Levantamento de sintomas",
-      "Análise de falhas",
-      "Diagnóstico técnico"
+      "Sistemas eletrônicos",
+      "Instalações",
+      "Desempenho e condições técnicas"
     ],
     "active": true
   },
   {
-    "id": "sistemas-eletronicos",
-    "title": "Avaliação de Sistemas Eletrônicos",
-    "description": "Análise de condições de funcionamento, componentes, conexões e informações técnicas de sistemas eletrônicos quando houver necessidade de compreender um problema ou comportamento fora do esperado.",
+    "id": "assistencia-tecnica-processos",
+    "title": "Assistência Técnica em Processos Judiciais",
+    "description": "Apoio técnico a advogados e partes na análise de documentos, quesitos, laudos, pareceres e demais elementos de Engenharia Eletrônica relacionados ao processo, dentro dos limites da atuação profissional.",
     "points": [
-      "Funcionamento",
-      "Componentes e conexões",
-      "Análise técnica"
+      "Análise documental",
+      "Quesitos e laudos",
+      "Apoio técnico à parte"
     ],
     "active": true
   },
   {
-    "id": "documentacao-orientacao-tecnica",
-    "title": "Análise e Orientação Técnica",
-    "description": "Leitura e interpretação de manuais, especificações, registros e demais informações técnicas para apoiar decisões de manutenção, substituição, adequação ou continuidade de uso.",
+    "id": "laudos-pareceres-tecnicos",
+    "title": "Laudos e Pareceres Técnicos",
+    "description": "Elaboração de documentos técnicos estruturados a partir dos elementos analisados, com exposição objetiva da metodologia, evidências consideradas, limites da avaliação e conclusões tecnicamente fundamentadas.",
     "points": [
-      "Documentação técnica",
-      "Especificações",
-      "Orientação para decisão"
+      "Metodologia",
+      "Fundamentação técnica",
+      "Conclusões claras"
     ],
     "active": true
   }
